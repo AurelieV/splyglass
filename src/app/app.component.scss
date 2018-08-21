@@ -1,0 +1,14 @@
+table.players {
+  table-layout: fixed;
+  margin-top: 2rem;
+  word-wrap: break-word;
+  word-break: break-all;
+  font-size: 10px;
+  td {
+    vertical-align: middle;
+  }
+}
+
+.main.section {
+  padding-top: 2rem;
+}
