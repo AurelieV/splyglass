@@ -1,2 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~bulma/bulma";
+
+.modal-card-foot {
+  justify-content: flex-end;
+}

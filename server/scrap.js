@@ -29,7 +29,10 @@ async function start() {
       players.push({
         lastname,
         firstname,
-        playerId
+        playerId,
+        logs: [
+          { user: 'Auto', time: (new Date()).getTime(), action: 'Imported', data: {firstname, lastname }}
+        ],
       })
     })
 

@@ -12,3 +12,11 @@ table.players {
 .main.section {
   padding-top: 2rem;
 }
+
+.notification {
+  position: fixed;
+  z-index: 200;
+  top: 20px;
+  left: 10px;
+  right: 10px;
+}

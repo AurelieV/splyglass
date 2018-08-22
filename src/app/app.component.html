@@ -5,7 +5,7 @@
     </a>
     <div class="navbar-item is-expanded">Spyglass</div>
     <div class="navbar-item">
-      <button class="button is-link">Add</button>
+      <button class="button is-link" (click)="addPlayer()">Add</button>
     </div>
   </div>
 </nav>
@@ -36,21 +36,21 @@
       <th>Actions</th>
     </thead>
     <tbody>
-      <tr *ngFor="let player of players$ | async">
+      <tr *ngFor="let player of players$ | async; trackBy: trackByFn">
         <td>{{player.lastname}}</td>
         <td>{{player.firstname}}</td>
         <td>{{player.deck || '?'}}</td>
         <td>
           <div class="field is-grouped">
             <p class="control">
-              <button class="button is-link is-small">
+              <button class="button is-link is-small" (click)="seePlayer(player)">
                 <span class="icon is-small">
                   <i class="fas fa-eye"></i>
                 </span>
               </button>
             </p>
             <p class="control">
-              <button class="button is-warning is-small">
+              <button class="button is-warning is-small" (click)="updatePlayer(player)">
                 <span class="icon is-small">
                   <i class="fas fa-pen"></i>
                 </span>
@@ -61,4 +61,87 @@
       </tr>
     </tbody>
   </table>
+</div>
+
+<div class="modal" [class.is-active]="displayModal">
+  <div class="modal-background"></div>
+  <div class="modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title">{{modalTitles[modalType]}}</p>
+      <button class="delete" (click)="closeModal()" aria-label="close"></button>
+    </header>
+    <section class="modal-card-body">
+      <div *ngIf="modalType === 'add' || modalType === 'update'">
+        <form #form="ngForm">
+            <div class="field">
+              <label class="label">Lastname *</label>
+              <div class="control">
+                <input class="input" required name="lastname" [(ngModel)]="lastname" type="text" placeholder="Lastname">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Firstname *</label>
+              <div class="control">
+                <input class="input" required name="firstname" [(ngModel)]="firstname" type="text" placeholder="Firstname">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Deck</label>
+              <div class="control">
+                <input class="input" name="deck" [(ngModel)]="deck" type="text" placeholder="Deck">
+              </div>
+            </div>
+            <div class="field">
+              <label class="label">Comment</label>
+              <div class="control">
+                <textarea class="textarea" placeholder="Comment" name="comment" [(ngModel)]="comment"></textarea>
+              </div>
+            </div>
+        </form>
+      </div>
+      <div *ngIf="modalType === 'more'">
+          <div class="field">
+            <label class="label">Deck</label>
+            <div class="control">{{currentPlayer.deck}}</div>
+          </div>
+          <div class="field">
+            <label class="label">Comments</label>
+            <span *ngIf="!currentPlayer.comments || currentPlayer.comments.length === 0">No comment</span>
+            <ul class="control">
+              <li *ngFor="let comment of currentPlayer.comments">
+                <span>{{comment.value}} </span>
+                <span class="is-italic has-text-link is-size-7"> - ({{comment.user}}, à {{comment.time | date}})</span>
+              </li>
+            </ul>
+            <div class="field">
+              <label class="label">Add a comment</label>
+              <div class="control">
+                <textarea row="3" class="textarea" placeholder="Comment" name="comment" [(ngModel)]="comment"></textarea>
+              </div>
+            </div>
+            <div class="control">
+              <button class="button is-success" [class.is-loading]="isCommentLoading" (click)="addComment()">Comment</button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">History</label>
+            <ul class="control">
+              <li *ngFor="let log of currentPlayer.logs" class="is-size-7">
+                <span>{{log.action}}, data:  </span>
+                <span>{{log.data.lastname}}, {{log.data.firstname}}, playing {{log.data.deck}}</span>
+                <span class="is-italic has-text-link"> - ({{log.user}}, à {{log.time | date}})</span>
+              </li>
+            </ul>
+          </div>
+      </div>
+    </section>
+    <footer class="modal-card-foot">
+        <button class="button is-success" [disabled]="form && form.form.invalid" (click)="confirm()">{{modalActions[modalType]}}</button>
+    </footer>
+  </div>
+</div>
+
+<div class="notification" *ngIf="message" [class.is-success]="message.type === 'success'" [class.is-danger]="message.type === 'error'">
+  <button class="delete"></button>
+  {{message.value}}
 </div>
