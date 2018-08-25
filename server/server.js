@@ -4,6 +4,7 @@ const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
 const configuration = require('./database.json');
 const url = `mongodb+srv://${configuration.user}:${configuration.password}@${configuration.url}`;
+const inspect = require('util').inspect;
 
 const app = express()
 app.use(bodyParser.urlencoded({extended: true}));
@@ -30,6 +31,32 @@ async function start() {
       res.json({
         data: players,
         count: players.length
+      })
+    }
+    catch (err) {
+      res.status(500).json({err});
+    }
+  })
+
+  app.get('/stats', async function(req, res) {
+    const collection = db.collection('players');
+    try {
+      const stats = await collection.aggregate([
+        {
+          $project: { withoutDeck: {$not: "$deck"}}
+        },
+        {
+          $group: {
+            _id: {withoutDeck: "$withoutDeck"},
+            count: { $sum: 1}
+          }
+        }
+      ]).toArray();
+      const withDeck = stats.find(s => !s._id.withoutDeck).count;
+      const withoutDeck = stats.find(s => s._id.withoutDeck).count;
+      res.json({
+        total: withDeck + withoutDeck,
+        withDeck
       })
     }
     catch (err) {

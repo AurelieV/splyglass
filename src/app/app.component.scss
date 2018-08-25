@@ -20,3 +20,15 @@ table.players {
   left: 10px;
   right: 10px;
 }
+
+.progress-section {
+  display: flex;
+  margin-top: 10px;
+  progress {
+    flex: 1;
+    margin-right: 10px;
+    margin-bottom: 0;
+  }
+  justify-content: center;
+  align-items: center;
+}

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, merge, switchMap } from 'rxjs/operators';
 import { PlayersService } from './players.service';
 
@@ -14,6 +14,11 @@ interface Player {
 interface Message {
   value: string;
   type: string;
+}
+
+interface Stats {
+  total: number;
+  withDeck: number;
 }
 
 @Component({
@@ -45,6 +50,8 @@ export class AppComponent implements OnInit {
   comment: string;
   currentPlayer: Player;
   message: Message;
+  stats$: Observable<Stats>;
+
 
   get searchInput() {
     return this.search$.getValue();
@@ -63,6 +70,9 @@ export class AppComponent implements OnInit {
       merge(this.refresh$.pipe(map(r => this.searchInput))),
       switchMap(search => this.playersService.search(search))
     );
+    this.stats$ = timer(0, 60000).pipe(
+      switchMap(t => this.playersService.getStats())
+    )
   }
 
   add() {

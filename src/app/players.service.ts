@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Injectable()
@@ -28,5 +29,9 @@ export class PlayersService {
 
   comment(_id: any, comment: string) {
     return this.http.post(`/api/players/${_id}/comment`, {comment});
+  }
+
+  getStats(): Observable<{total: number; withDeck: number}> {
+    return this.http.get('/api/stats') as Observable<{total: number; withDeck: number}>;
   }
 }

@@ -5,7 +5,7 @@ const MongoClient = require('mongodb').MongoClient;
 const configuration = require('./database.json');
 const url = `mongodb+srv://${configuration.user}:${configuration.password}@${configuration.url}`;
 
-const eventId = 96;
+const eventId = 98;
 const options = {
   uri: `http://pairings.channelfireball.com/personal/${eventId}`,
   useNewUrlParser: true,
@@ -14,7 +14,7 @@ const options = {
   }
 };
 
-const playerRegexp = /^(.+), (.+) \((\d)+\)$/g;
+const playerRegexp = /^(.+), (.+) \((\d)+\)$/;
 
 async function start() {
   try {
@@ -22,7 +22,10 @@ async function start() {
     let players = [];
     $('#playerlist').children('option').each(function() {
       const info = playerRegexp.exec($(this).text());
-      if (!info) return;
+      if (!info) {
+        console.log("Parse error", $(this).text())
+        return;
+      };
       const [,lastname, firstname] = info;
       const playerId = $(this).attr('value');
 
@@ -36,15 +39,17 @@ async function start() {
       })
     })
 
+    console.log(`${players.length} scrapped`);
+
     const client = await MongoClient.connect(url);
     const db = client.db('test');
     const collection = db.collection('players');
-    await Promise.all(players.map(player =>
-      collection.findOneAndUpdate({ playerId: player.playerId }, {$set: player}, {
-        returnOriginal: false,
-        upsert: true
-      })
+    const results = await Promise.all(players.map(player =>
+      collection.findOneAndUpdate({ firstname: player.firstname, lastname: player.lastname }, {$set: player}, {upsert: true})
     ));
+    const newPlayers = results.filter(result => result.lastErrorObject.updatedExisting);
+    console.log(newPlayers[0]);
+    console.log(`${newPlayers.length} new players inserted`);
 
     client.close();
   }

@@ -27,6 +27,10 @@
           </p>
         </div>
     </div>
+    <div class="progress-section" *ngIf="stats$ | async as stats">
+      <progress class="progress is-info" [value]="stats.withDeck" [max]="stats.total"></progress>
+      <div class="">{{stats.withDeck}} / {{stats.total}}</div>
+    </div>
   </div>
   <table class="table is-striped is-fullwidth is-narrow players">
     <thead>
