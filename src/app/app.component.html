@@ -21,6 +21,7 @@
   </div>
 </nav>
 
+<p class="has-text-danger is-italic" *ngIf="!user">For editing, you must be logged</p>
 <div class="section main">
   <div class="container">
     <div class="level">
@@ -43,7 +44,7 @@
       <div class="">{{stats.withDeck}} / {{stats.total}}</div>
     </div>
   </div>
-  <div class="actions">
+  <div class="actions" *ngIf="user">
       <button class="button is-link" (click)="addPlayer()">Add</button>
   </div>
   <table class="table is-striped is-fullwidth is-narrow players">
@@ -68,7 +69,7 @@
               </button>
             </p>
             <p class="control">
-              <button class="button is-warning is-small" (click)="updatePlayer(player)">
+              <button class="button is-warning is-small" (click)="updatePlayer(player)" *ngIf="user">
                 <span class="icon is-small">
                   <i class="fas fa-pen"></i>
                 </span>
@@ -132,15 +133,17 @@
                 <span class="is-italic has-text-link is-size-7"> - ({{comment.user}} - {{comment.time | date:'medium'}})</span>
               </li>
             </ul>
-            <div class="field">
-              <label class="label">Add a comment</label>
-              <div class="control">
-                <textarea row="3" class="textarea" placeholder="Comment" name="comment" [(ngModel)]="comment"></textarea>
-              </div>
-            </div>
-            <div class="control">
-              <button class="button is-success" [class.is-loading]="isCommentLoading" (click)="addComment()">Comment</button>
-            </div>
+            <ng-template [ngIf]="user">
+                <div class="field">
+                  <label class="label">Add a comment</label>
+                  <div class="control">
+                    <textarea row="3" class="textarea" placeholder="Comment" name="comment" [(ngModel)]="comment"></textarea>
+                  </div>
+                </div>
+                <div class="control">
+                  <button class="button is-success" [class.is-loading]="isCommentLoading" (click)="addComment()">Comment</button>
+                </div>
+            </ng-template>
           </div>
           <div class="field">
             <label class="label">History</label>
