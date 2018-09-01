@@ -28,6 +28,7 @@ interface Stats {
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+  form: any;
   isLoading: boolean = false;
   players$: Observable<Player[]>;
   search$ = new BehaviorSubject<string>("");

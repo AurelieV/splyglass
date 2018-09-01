@@ -9,7 +9,7 @@ import { AuthenticationInterceptor } from './authentication.interceptor';
 import { PlayersService } from './players.service';
 import { UserService } from './user.service';
 
-function tokenGetter() {
+export function tokenGetter() {
   return localStorage.getItem('id_token');
 }
 
