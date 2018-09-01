@@ -1,6 +1,6 @@
 table.players {
   table-layout: fixed;
-  margin-top: 2rem;
+  margin-top: 1rem;
   word-wrap: break-word;
   word-break: break-all;
   font-size: 10px;
@@ -31,4 +31,10 @@ table.players {
   }
   justify-content: center;
   align-items: center;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
 }

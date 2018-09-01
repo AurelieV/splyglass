@@ -14,7 +14,6 @@ export class UserService {
   user$ = new BehaviorSubject<User>(undefined);
 
   set user(value: User) {
-    console.log("pouet");
     this.user$.next(value);
   }
 

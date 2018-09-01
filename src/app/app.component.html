@@ -43,7 +43,7 @@
       <div class="">{{stats.withDeck}} / {{stats.total}}</div>
     </div>
   </div>
-  <div>
+  <div class="actions">
       <button class="button is-link" (click)="addPlayer()">Add</button>
   </div>
   <table class="table is-striped is-fullwidth is-narrow players">
@@ -79,7 +79,7 @@
       </tr>
     </tbody>
   </table>
-  <p *ngIf="(players$ | async).length <= 20">Only the first 20 results are displayed for performance reason.</p>
+  <p *ngIf="(players$ | async)?.length <= 20">Only the first 20 results are displayed for performance reason.</p>
 </div>
 
 <div class="modal" [class.is-active]="displayModal">

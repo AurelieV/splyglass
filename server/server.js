@@ -97,8 +97,8 @@ async function start() {
           }
         }
       ]).toArray();
-      const withDeck = stats.find(s => !s._id.withoutDeck).count;
-      const withoutDeck = stats.find(s => s._id.withoutDeck).count;
+      const withDeck = (stats.find(s => !s._id.withoutDeck) || {}).count || 0;
+      const withoutDeck = (stats.find(s => s._id.withoutDeck) || {}).count || 0;
       res.json({
         total: withDeck + withoutDeck,
         withDeck
