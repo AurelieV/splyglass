@@ -2,7 +2,7 @@ const rp = require('request-promise');
 const cheerio = require('cheerio');
 
 const MongoClient = require('mongodb').MongoClient;
-const configuration = require('./database.json');
+const configuration = require('./private.json').database;
 const url = `mongodb+srv://${configuration.user}:${configuration.password}@${configuration.url}`;
 
 const eventId = 98;

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { BehaviorSubject, Observable, timer } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, merge, switchMap } from 'rxjs/operators';
 import { PlayersService } from './players.service';
+import { User, UserService } from './user.service';
 
 interface Player {
   firstname: string;
@@ -51,6 +52,7 @@ export class AppComponent implements OnInit {
   currentPlayer: Player;
   message: Message;
   stats$: Observable<Stats>;
+  user: User;
 
 
   get searchInput() {
@@ -61,7 +63,7 @@ export class AppComponent implements OnInit {
     this.search$.next(value)
   }
 
-  constructor(private playersService: PlayersService) {}
+  constructor(private playersService: PlayersService, private userService: UserService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.players$ = this.search$.pipe(
@@ -73,9 +75,22 @@ export class AppComponent implements OnInit {
     this.stats$ = timer(0, 60000).pipe(
       switchMap(t => this.playersService.getStats())
     )
+    this.userService.user$.subscribe(user => {
+      this.user = user;
+      // force to do this, because facebook login is not detected
+      this.cdr.detectChanges();
+    })
   }
 
-  add() {
+  login() {
+    this.userService.login();
+  }
+
+  logout() {
+    this.userService.logout();
+  }
+
+  addPlayer() {
     this.displayModal = true;
     this.modalType = 'add';
     this.firstname = "";

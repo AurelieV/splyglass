@@ -38,4 +38,4 @@ testem.log
 .DS_Store
 Thumbs.db
 
-server/database.json
+server/private.json

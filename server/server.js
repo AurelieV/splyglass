@@ -2,17 +2,62 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
-const configuration = require('./database.json');
+const passport = require('passport');
+const FacebookTokenStrategy = require('passport-facebook-token');
+const {facebook: facebookData, database: configuration, secret} = require('./private');
 const url = `mongodb+srv://${configuration.user}:${configuration.password}@${configuration.url}`;
-const inspect = require('util').inspect;
+const jwt = require('jsonwebtoken');
+const expressJwt = require('express-jwt');
+
 
 const app = express()
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+app.use(expressJwt({
+  secret,
+  credentialsRequired: false,
+  getToken: function(req) {
+    if (req.headers['x-auth-token']) {
+      return req.headers['x-auth-token'];
+    }
+    return null;
+  }
+}));
+
 async function start() {
   const client = await MongoClient.connect(url);
   const db = client.db('test');
+
+  passport.use(new FacebookTokenStrategy(facebookData, async function (accessToken, refreshToken, profile, done) {
+    let user = await db.collection('users').findOne({'facebookProvider.id': profile.id});
+    try {
+      if (!user) {
+        user = await db.collection('users').insertOne({
+          displayName: profile.displayName,
+          facebookProvider: {id: profile.id, token: accessToken}
+        })
+      }
+      done(null, user);
+    } catch (err) {
+      done(err);
+    }
+  }
+  ));
+
+  app.use(passport.initialize());
+
+  app.post('/auth/facebook',
+    passport.authenticate('facebook-token', {session: false}),
+    (req, res) => {
+      const token = jwt.sign({
+        id: req.user._id,
+        displayName: req.user.displayName
+      }, secret, { expiresIn: 60 * 120 });
+      res.setHeader('x-auth-token', token);
+      res.json({user: {displayName: req.user.displayName}});
+    }
+  )
 
   app.get('/players', async function(req, res) {
     const collection = db.collection('players');
@@ -27,7 +72,7 @@ async function start() {
       }
     }
     try {
-      const players = await collection.find(findQuery).sort([['lastname', 1]]).toArray();
+      const players = await collection.find(findQuery).sort([['lastname', 1]]).limit(20).toArray();
       res.json({
         data: players,
         count: players.length
@@ -65,15 +110,19 @@ async function start() {
   })
 
   app.post('/players/:id', async function(req, res) {
+    const user = req.user;
+    if (!user) {
+      return res.status(403).send('Unauthorized');
+    }
     const id = req.params.id;
     const collection = db.collection('players');
     const {firstname, lastname, deck, comment} = req.body;
     try {
       const pushRequest = {
-        logs: {user: 'Anonymous', time: (new Date()).getTime(), action: 'Updated', data: {firstname, lastname, deck }}
+        logs: {user: user.displayName, time: (new Date()).getTime(), action: 'Updated', data: {firstname, lastname, deck }}
       }
       if (comment) {
-        pushRequest.comments = {user: 'Anonymous', time: (new Date()).getTime(), value: comment};
+        pushRequest.comments = {user: user.displayName, time: (new Date()).getTime(), value: comment};
       }
       const {value: player} = await collection.findOneAndUpdate(
         {_id: ObjectId(id)},
@@ -94,6 +143,10 @@ async function start() {
     }
   })
   app.post('/players/:id/comment', async function(req, res) {
+    const user = req.user;
+    if (!user) {
+      return res.status(403).send('Unauthorized');
+    }
     const id = req.params.id;
     const collection = db.collection('players');
     const {comment} = req.body;
@@ -101,7 +154,7 @@ async function start() {
       const test = await collection.findOneAndUpdate(
         {_id: ObjectId(id)},
         {
-          $push: {comments: {user: 'Anonymous', time: (new Date()).getTime(), value: comment}}
+          $push: {comments: {user: user.displayName, time: (new Date()).getTime(), value: comment}}
         },
         {returnOriginal: false}
       )
@@ -114,6 +167,10 @@ async function start() {
   })
 
   app.post('/players', async function(req, res) {
+    const user = req.user;
+    if (!user) {
+      return res.status(403).send('Unauthorized');
+    }
     const collection = db.collection('players');
     const {firstname, lastname, deck} = req.body;
     try {
@@ -122,7 +179,7 @@ async function start() {
         lastname,
         deck,
         logs: [
-          { user: 'Anonymous', time: (new Date()).getTime(), action: 'Created', data: {firstname, lastname, deck }}
+          { user: user.displayName, time: (new Date()).getTime(), action: 'Created', data: {firstname, lastname, deck }}
         ],
         comments: comment ? [comment] : []
       });

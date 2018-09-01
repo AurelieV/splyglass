@@ -5,7 +5,18 @@
     </a>
     <div class="navbar-item is-expanded">Spyglass</div>
     <div class="navbar-item">
-      <button class="button is-link" (click)="addPlayer()">Add</button>
+      <button *ngIf="!user" class="button is-link" (click)="login()">
+        <span class="icon">
+          <i class="fab fa-facebook"></i>
+        </span>
+        <span>Login</span>
+      </button>
+      <button *ngIf="user" class="button is-danger" (click)="logout()">
+        <span class="icon">
+          <i class="fab fa-facebook"></i>
+        </span>
+        <span>Logout</span>
+      </button>
     </div>
   </div>
 </nav>
@@ -31,6 +42,9 @@
       <progress class="progress is-info" [value]="stats.withDeck" [max]="stats.total"></progress>
       <div class="">{{stats.withDeck}} / {{stats.total}}</div>
     </div>
+  </div>
+  <div>
+      <button class="button is-link" (click)="addPlayer()">Add</button>
   </div>
   <table class="table is-striped is-fullwidth is-narrow players">
     <thead>
@@ -65,6 +79,7 @@
       </tr>
     </tbody>
   </table>
+  <p *ngIf="(players$ | async).length <= 20">Only the first 20 results are displayed for performance reason.</p>
 </div>
 
 <div class="modal" [class.is-active]="displayModal">
@@ -114,7 +129,7 @@
             <ul class="control">
               <li *ngFor="let comment of currentPlayer.comments">
                 <span>{{comment.value}} </span>
-                <span class="is-italic has-text-link is-size-7"> - ({{comment.user}}, à {{comment.time | date}})</span>
+                <span class="is-italic has-text-link is-size-7"> - ({{comment.user}} - {{comment.time | date:'medium'}})</span>
               </li>
             </ul>
             <div class="field">
@@ -133,7 +148,7 @@
               <li *ngFor="let log of currentPlayer.logs" class="is-size-7">
                 <span>{{log.action}}, data:  </span>
                 <span>{{log.data.lastname}}, {{log.data.firstname}}, playing {{log.data.deck}}</span>
-                <span class="is-italic has-text-link"> - ({{log.user}}, à {{log.time | date}})</span>
+                <span class="is-italic has-text-link"> - ({{log.user}} - {{log.time | date:'medium'}})</span>
               </li>
             </ul>
           </div>

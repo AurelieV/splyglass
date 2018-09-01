@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  domain: 'localhost:4200',
+  facebookId: '1693046610821950'
 };
 
 /*
