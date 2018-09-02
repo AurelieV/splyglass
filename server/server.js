@@ -172,7 +172,7 @@ async function start() {
       return res.status(403).send('Unauthorized');
     }
     const collection = db.collection('players');
-    const {firstname, lastname, deck} = req.body;
+    const {firstname, lastname, deck, comment} = req.body;
     try {
       await collection.insert({
         firstname,
