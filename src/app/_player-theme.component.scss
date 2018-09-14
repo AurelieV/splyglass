@@ -1,0 +1,20 @@
+@import '~@angular/material/theming';
+
+@mixin player-theme($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+
+  player {
+    .title {
+      color: mat-color($primary);
+    }
+    .list {
+      .item {
+        .metadata {
+          color: mat-color($primary);
+        }
+      }
+    }
+  }
+}

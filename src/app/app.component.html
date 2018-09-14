@@ -1,169 +1,38 @@
-<nav class="navbar is-fixed-top is-primary" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a class="navbar-item">
-      <img src="/assets/spyglass.png" alt="Spyglass icon">
-    </a>
-    <div class="navbar-item is-expanded">Spyglass</div>
-    <div class="navbar-item">
-      <button *ngIf="!user" class="button is-link" (click)="login()">
-        <span class="icon">
-          <i class="fab fa-facebook"></i>
-        </span>
+<div class="main-container" [class.main-is-mobile]="mobileQuery.matches">
+  <mat-toolbar color="primary" class="main-toolbar">
+    <mat-toolbar-row>
+      <button mat-icon-button (click)="snav.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <h1 class="main-app-name">Spyglass</h1>
+      <button mat-flat-button color="accent" *ngIf="!user" (click)="login()">
         <span>Login</span>
       </button>
-      <button *ngIf="user" class="button is-danger" (click)="logout()">
-        <span class="icon">
-          <i class="fab fa-facebook"></i>
-        </span>
-        <span>Logout</span>
+      <button mat-flat-button color="accent" *ngIf="user" (click)="addPlayer()">
+        <span>Add</span>
       </button>
-    </div>
-  </div>
-</nav>
+    </mat-toolbar-row>
+  </mat-toolbar>
 
-<p class="has-text-danger is-italic" *ngIf="!user">For editing, you must be logged</p>
-<div class="section main">
-  <div class="container">
-    <div class="level">
-        <div class="field has-addons">
-          <p class="control has-icons-left">
-            <input class="input" [(ngModel)]="searchInput" type="text" placeholder="Search a player">
-            <span class="icon is-small is-left">
-              <i class="fas fa-search"></i>
-            </span>
-          </p>
-          <p class="control">
-            <button (click)="reinitializeSearch()" class="button is-danger" *ngIf="searchInput && !isLoading">
-              <i class="fas fa-times"></i>
-            </button>
-          </p>
-        </div>
-    </div>
-    <div class="progress-section" *ngIf="stats$ | async as stats">
-      <progress class="progress is-info" [value]="stats.withDeck" [max]="stats.total"></progress>
-      <div class="">{{stats.withDeck}} / {{stats.total}}</div>
-    </div>
-  </div>
-  <div class="actions" *ngIf="user">
-      <button class="button is-link" (click)="addPlayer()">Add</button>
-  </div>
-  <table class="table is-striped is-fullwidth is-narrow players">
-    <thead>
-      <th>Last name</th>
-      <th>First name</th>
-      <th>Deck</th>
-      <th>Actions</th>
-    </thead>
-    <tbody>
-      <tr *ngFor="let player of players$ | async; trackBy: trackByFn">
-        <td>{{player.lastname}}</td>
-        <td>{{player.firstname}}</td>
-        <td>{{player.deck || '?'}}</td>
-        <td>
-          <div class="field is-grouped">
-            <p class="control">
-              <button class="button is-link is-small" (click)="seePlayer(player)">
-                <span class="icon is-small">
-                  <i class="fas fa-eye"></i>
-                </span>
-              </button>
-            </p>
-            <p class="control">
-              <button class="button is-warning is-small" (click)="updatePlayer(player)" *ngIf="user">
-                <span class="icon is-small">
-                  <i class="fas fa-pen"></i>
-                </span>
-              </button>
-            </p>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <p *ngIf="(players$ | async)?.length <= 20">Only the first 20 results are displayed for performance reason.</p>
-</div>
-
-<div class="modal" [class.is-active]="displayModal">
-  <div class="modal-background"></div>
-  <div class="modal-card">
-    <header class="modal-card-head">
-      <p class="modal-card-title">{{modalTitles[modalType]}}</p>
-      <button class="delete" (click)="closeModal()" aria-label="close"></button>
-    </header>
-    <section class="modal-card-body">
-      <div *ngIf="modalType === 'add' || modalType === 'update'">
-        <form #form="ngForm">
-            <div class="field">
-              <label class="label">Lastname *</label>
-              <div class="control">
-                <input class="input" required name="lastname" [(ngModel)]="lastname" type="text" placeholder="Lastname">
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Firstname *</label>
-              <div class="control">
-                <input class="input" required name="firstname" [(ngModel)]="firstname" type="text" placeholder="Firstname">
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Deck</label>
-              <div class="control">
-                <input class="input" name="deck" [(ngModel)]="deck" type="text" placeholder="Deck">
-              </div>
-            </div>
-            <div class="field">
-              <label class="label">Comment</label>
-              <div class="control">
-                <textarea class="textarea" placeholder="Comment" name="comment" [(ngModel)]="comment"></textarea>
-              </div>
-            </div>
-        </form>
+  <mat-sidenav-container class="main-sidenav-container" [style.marginTop.px]="mobileQuery.matches ? 56 : 0">
+    <mat-sidenav #snav [fixedInViewport]="mobileQuery.matches" fixedTopGap="56">
+      <div class="user" *ngIf="user">
+        <strong class="name">{{user.displayName}}</strong>
+        <button mat-stroked-button color="accent" (click)="logout()" class="logout">Logout</button>
       </div>
-      <div *ngIf="modalType === 'more'">
-          <div class="field">
-            <label class="label">Deck</label>
-            <div class="control">{{currentPlayer.deck}}</div>
-          </div>
-          <div class="field">
-            <label class="label">Comments</label>
-            <span *ngIf="!currentPlayer.comments || currentPlayer.comments.length === 0">No comment</span>
-            <ul class="control">
-              <li *ngFor="let comment of currentPlayer.comments">
-                <span>{{comment.value}} </span>
-                <span class="is-italic has-text-link is-size-7"> - ({{comment.user}} - {{comment.time | date:'medium'}})</span>
-              </li>
-            </ul>
-            <ng-template [ngIf]="user">
-                <div class="field">
-                  <label class="label">Add a comment</label>
-                  <div class="control">
-                    <textarea row="3" class="textarea" placeholder="Comment" name="comment" [(ngModel)]="comment"></textarea>
-                  </div>
-                </div>
-                <div class="control">
-                  <button class="button is-success" [class.is-loading]="isCommentLoading" (click)="addComment()">Comment</button>
-                </div>
-            </ng-template>
-          </div>
-          <div class="field">
-            <label class="label">History</label>
-            <ul class="control">
-              <li *ngFor="let log of currentPlayer.logs" class="is-size-7">
-                <span>{{log.action}}, data:  </span>
-                <span>{{log.data.lastname}}, {{log.data.firstname}}, playing {{log.data.deck}}</span>
-                <span class="is-italic has-text-link"> - ({{log.user}} - {{log.time | date:'medium'}})</span>
-              </li>
-            </ul>
-          </div>
-      </div>
-    </section>
-    <footer class="modal-card-foot">
-        <button class="button is-success" [disabled]="form && form.form.invalid" (click)="confirm()">{{modalActions[modalType]}}</button>
-    </footer>
-  </div>
-</div>
+      <mat-nav-list>
+        <a mat-list-item (click)="snav.toggle()" [routerLink]="['./']">Search tool</a>
+        <a mat-list-item (click)="snav.toggle()" [routerLink]="['./full']">Full list</a>
+        <a mat-list-item (click)="snav.toggle()" [routerLink]="['./my-page']">My page</a>
+        <a mat-list-item (click)="snav.toggle()" [routerLink]="['./stats']">Statistics</a>
+      </mat-nav-list>
+    </mat-sidenav>
 
-<div class="notification" *ngIf="message" [class.is-success]="message.type === 'success'" [class.is-danger]="message.type === 'error'">
-  <button class="delete"></button>
-  {{message.value}}
+    <mat-sidenav-content>
+      <div class="container">
+        <p class="warning-message" *ngIf="!user">For editing, you must be logged</p>
+        <router-outlet></router-outlet>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </div>

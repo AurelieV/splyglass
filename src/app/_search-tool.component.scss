@@ -1,0 +1,16 @@
+@import '~@angular/material/theming';
+
+@mixin search-tool-theme($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+
+  search-tool {
+    .progress-text {
+      color: mat-color($primary);
+    }
+    .table.is-striped tbody tr:not(.is-selected):nth-child(even) {
+      background-color: mat-color($primary, 50);
+    }
+  }
+}

@@ -1,0 +1,92 @@
+<h2 mat-dialog-title>
+  <span *ngIf="currentPlayer">{{currentPlayer.lastname}}, {{currentPlayer.firstname}}</span>
+  <span *ngIf="!currentPlayer">Add a new player</span>
+</h2>
+<mat-dialog-content *ngIf="!currentPlayer">
+  <form #addForm="ngForm">
+    <mat-form-field>
+      <input matInput placeholder="Lastname" [(ngModel)]="lastname" name="lastname" required>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Firstname" [(ngModel)]="firstname" name="firstname" required>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="Deck" [(ngModel)]="deck" name="deck" required>
+    </mat-form-field>
+    <mat-form-field>
+      <textarea matInput placeholder="Comment" [(ngModel)]="comment" name="comment"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-content *ngIf="currentPlayer">
+  <div *ngIf="!isEditing && !isCommenting">
+    <div class="title">Deck</div>
+    <div>{{currentPlayer.deck || '?' }}</div>
+  </div>
+  <form *ngIf="isEditing">
+    <mat-form-field>
+      <input [disabled]="isLoading" matInput placeholder="Lastname" [(ngModel)]="lastname" name="lastname" required>
+    </mat-form-field>
+    <mat-form-field>
+      <input [disabled]="isLoading" matInput placeholder="Firstname" [(ngModel)]="firstname" name="firstname" required>
+    </mat-form-field>
+    <mat-form-field>
+      <input [disabled]="isLoading" matInput placeholder="Deck" [(ngModel)]="deck" name="deck" required>
+    </mat-form-field>
+  </form>
+  <div class="list" *ngIf="!isEditing && !isCommenting">
+    <div class="title">Comments</div>
+    <div *ngIf="!currentPlayer.comments || currentPlayer.comments.length === 0">
+      No comment
+    </div>
+    <div>
+      <div *ngFor="let comment of currentPlayer.comments" class="item">
+        <span>{{comment.value}} </span>
+        <span class="metadata"> - ({{comment.user}} - {{comment.time | date:'medium'}})</span>
+      </div>
+    </div>
+    <ng-template [ngIf]="user">
+      <div class="field">
+        <label class="label">Add a comment</label>
+        <div class="control">
+          <textarea row="3" class="textarea" placeholder="Comment" name="comment" [(ngModel)]="comment"></textarea>
+        </div>
+      </div>
+      <div class="control">
+        <button class="button is-success" [class.is-loading]="isCommentLoading" (click)="addComment()">Comment</button>
+      </div>
+    </ng-template>
+  </div>
+  <div class="actions">
+      <button mat-flat-button color="primary" *ngIf="currentPlayer && !isCommenting" (click)="isCommenting = true">Comment</button>
+  </div>
+  <div *ngIf="isCommenting">
+    <mat-form-field>
+      <textarea col="3" matInput placeholder="Comment" [(ngModel)]="comment"></textarea>
+    </mat-form-field>
+    <div class="actions">
+      <button mat-flat-button [disabled]="!comment || isCommentLoading" (click)="addComment()">Add comment</button>
+    </div>
+  </div>
+  <div class="list" *ngIf="currentPlayer && !isEditing && !isCommenting">
+    <div class="title">History</div>
+    <div>
+      <div *ngFor="let log of currentPlayer.logs" class="item">
+        <span>{{log.action}}, data: </span>
+        <span>{{log.data.lastname}}, {{log.data.firstname}}, playing {{log.data.deck}}</span>
+        <span class="metadata"> - ({{log.user}} - {{log.time | date:'medium'}})</span>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-stroked-button color="accent" (click)="close()" *ngIf="!currentPlayer || (!isEditing && !isCommenting)">Close</button>
+  <button *ngIf="currentPlayer && !isEditing && !isCommenting" (click)="isEditing = true" mat-flat-button color="primary">Edit</button>
+  <button mat-flat-button color="primary" (click)="add()" *ngIf="!currentPlayer" [disabled]="!(lastname && firstname && deck)">Add
+    {{addForm && addForm.form.invalid}}</button>
+  <button mat-stroked-button color="accent" *ngIf="currentPlayer && (isEditing || isCommenting)" (click)="isEditing = false; isCommenting = false"
+    [disabled]="isLoading">Cancel</button>
+  <button mat-flat-button color="primary" *ngIf="currentPlayer && isEditing" [disabled]="!(firstname && lastname && deck) || isLoading"
+    (click)="edit()">Edit</button>
+</mat-dialog-actions>

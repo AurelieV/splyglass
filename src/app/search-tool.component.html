@@ -1,0 +1,39 @@
+<mat-form-field class="search-field">
+  <input matInput type="text" [(ngModel)]="searchInput">
+  <button mat-button *ngIf="searchInput && !isLoading" matSuffix mat-icon-button aria-label="Clear" (click)="reinitializeSearch()">
+    <mat-icon color="accent">close</mat-icon>
+  </button>
+  <mat-hint align="start">Put only firstname or lastname</mat-hint>
+  <mat-icon color="primary" matPrefix>search</mat-icon>
+</mat-form-field>
+
+<div class="progress" *ngIf="stats$ | async as stats">
+  <mat-progress-bar color="primary" [value]="stats.withDeck / stats.total * 100" mode="determinate"></mat-progress-bar>
+  <div class="progress-text">{{stats.withDeck}} / {{stats.total}}</div>
+</div>
+
+<table class="table is-striped is-fullwidth is-narrow players">
+  <thead>
+    <th>Last name</th>
+    <th>First name</th>
+    <th>Deck</th>
+    <th *ngIf="!viewAll">Actions</th>
+  </thead>
+  <tbody>
+    <tr *ngFor="let player of players$ | async; trackBy: trackByFn">
+      <td>{{player.lastname}}</td>
+      <td>{{player.firstname}}</td>
+      <td>{{player.deck || '?'}}</td>
+      <td *ngIf="!viewAll">
+        <button mat-icon-button (click)="openPlayer(player)">
+          <mat-icon aria-label="view" color="accent">remove_red_eye</mat-icon>
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p *ngIf="players$ | async as players">
+  <span *ngIf="!viewAll && players && players.length === 20">Only the first 20 results are displayed for performance
+    reason.</span>
+  <a *ngIf="!viewAll" [routerLink]="['./full']">View full list here</a>
+</p>

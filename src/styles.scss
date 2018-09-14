@@ -1,6 +1,33 @@
-/* You can add global styles to this file, and also import other style files */
-@import "~bulma/bulma";
+@import '_reset';
+@import '~@angular/material/theming';
+@import '~bulma/sass/utilities/_all.sass';
+@import '~bulma/sass/elements/table.sass';
 
-.modal-card-foot {
+@import './app/_app-theme.component';
+@import './app/search-tool.component';
+@import './app/player-theme.component';
+
+@include mat-core();
+
+$spyglass-primary: mat-palette($mat-indigo);
+$spyglass-accent: mat-palette($mat-purple);
+
+// The warn palette is optional (defaults to red).
+$spyglass-warn: mat-palette($mat-red);
+$spyglass-theme: mat-light-theme(
+  $spyglass-primary,
+  $spyglass-accent,
+  $spyglass-warn
+);
+
+@include angular-material-theme($spyglass-theme);
+@include app-theme($spyglass-theme);
+@include search-tool-theme($spyglass-theme);
+@include player-theme($spyglass-theme);
+
+mat-dialog-actions {
   justify-content: flex-end;
+  button:not(:first-child) {
+    margin-left: 10px;
+  }
 }

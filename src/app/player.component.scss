@@ -1,0 +1,27 @@
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  button:not(:first-child) {
+    margin-left: 10px;
+  }
+}
+
+.title {
+  font-weight: bold;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  .item {
+    &:not(:first-child) {
+      margin-top: 10px;
+    }
+    .metadata {
+      font-style: italic;
+      font-size: 12px;
+    }
+  }
+}

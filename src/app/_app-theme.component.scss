@@ -1,0 +1,21 @@
+@import '~@angular/material/theming';
+
+@mixin app-theme($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+
+  mat-sidenav {
+    .user {
+      background-color: mat-color($primary, 50);
+
+      .picture {
+        background-color: mat-color($accent);
+      }
+    }
+  }
+
+  .warning-message {
+    color: mat-color($warn);
+  }
+}

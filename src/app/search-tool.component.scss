@@ -1,0 +1,28 @@
+mat-form-field.search-field {
+  width: 100%;
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1em;
+  mat-progress-bar {
+    flex: 1;
+  }
+  .progress-text {
+    margin-left: 1em;
+    font-size: 14px;
+  }
+}
+
+table.players {
+  table-layout: fixed;
+  margin-top: 1rem;
+  word-wrap: break-word;
+  word-break: break-all;
+  font-size: 12px;
+  td {
+    vertical-align: middle;
+  }
+}
