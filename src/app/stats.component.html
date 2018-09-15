@@ -1,0 +1,8 @@
+<h3 class="title">Scores</h3>
+<button (click)="refresh()" mat-flat-button color="primary">Refresh</button>
+<ul class="scores">
+  <li *ngFor="let score of scores">
+    <span>{{score.name || 'Inconnu'}}</span>
+    <span> - ({{score.score}} decks)</span>
+  </li>
+</ul>

@@ -28,6 +28,7 @@ import { PlayerComponent } from './player.component'
 import { PlayersService } from './players.service'
 import { RefreshService } from './refresh.service'
 import { SearchToolComponent } from './search-tool.component'
+import { StatsComponent } from './stats.component'
 import { UserService } from './user.service'
 
 const JWT_LOCALSTORAGE_KEY_VALUE = 'id_token'
@@ -42,6 +43,7 @@ export function tokenGetter() {
     CommingSoonComponent,
     PlayerComponent,
     FullComponent,
+    StatsComponent,
   ],
   imports: [
     BrowserModule,
@@ -61,7 +63,7 @@ export function tokenGetter() {
     RouterModule.forRoot([
       { path: '', component: SearchToolComponent },
       { path: 'full', component: FullComponent },
-      { path: 'stats', component: CommingSoonComponent },
+      { path: 'stats', component: StatsComponent },
       { path: 'my-page', component: CommingSoonComponent },
     ]),
 

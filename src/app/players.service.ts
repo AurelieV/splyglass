@@ -16,6 +16,11 @@ export interface Stats {
   withDeck: number
 }
 
+export interface Score {
+  name: string
+  score: number
+}
+
 @Injectable()
 export class PlayersService {
   constructor(private http: HttpClient) {}
@@ -65,5 +70,13 @@ export class PlayersService {
       total: number
       withDeck: number
     }>
+  }
+
+  getScores(): Observable<Score[]> {
+    return this.http.get('/api/scores').pipe(
+      map((res: any) => {
+        return res.map((s) => ({ name: s._id, score: s.count }))
+      })
+    )
   }
 }

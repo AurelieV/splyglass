@@ -146,6 +146,48 @@ async function start() {
     }
   })
 
+  app.get('/scores', async function(req, res) {
+    const collection = db.collection('players')
+    try {
+      const facets = await collection
+        .aggregate([
+          {
+            $project: {
+              logs: {
+                $filter: {
+                  input: '$logs',
+                  as: 'log',
+                  cond: {
+                    $or: [
+                      { $eq: ['$$log.action', 'Updated'] },
+                      { $eq: ['$$log.action', 'Created'] },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+          { $project: { lastLog: { $slice: ['$logs', 1] } } },
+          { $project: { lastLog: { $arrayElemAt: ['$lastLog', 0] } } },
+          { $project: { lastAuthor: '$lastLog.user' } },
+          {
+            $group: {
+              _id: '$lastAuthor',
+              count: { $sum: 1 },
+            },
+          },
+          {
+            $sort: { count: -1 },
+          },
+        ])
+        .toArray()
+      res.json(facets)
+    } catch (err) {
+      console.log(err)
+      res.status(500).json({ err })
+    }
+  })
+
   app.post('/players/:id', async function(req, res) {
     const user = req.user
     if (!user) {

@@ -6,6 +6,7 @@
 @import './app/_app-theme.component';
 @import './app/search-tool.component';
 @import './app/player-theme.component';
+@import './app/stats-theme.component';
 
 @include mat-core();
 
@@ -24,6 +25,7 @@ $spyglass-theme: mat-light-theme(
 @include app-theme($spyglass-theme);
 @include search-tool-theme($spyglass-theme);
 @include player-theme($spyglass-theme);
+@include stats-theme($spyglass-theme);
 
 mat-dialog-actions {
   justify-content: center;

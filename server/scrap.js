@@ -39,14 +39,6 @@ async function start() {
           playerId,
           active: true,
           score: Number(score),
-          logs: [
-            {
-              user: 'Auto',
-              time: new Date().getTime(),
-              action: 'Imported',
-              data: { firstname, lastname },
-            },
-          ],
         })
       })
 
