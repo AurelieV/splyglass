@@ -46,13 +46,13 @@ export class PlayerComponent {
       .add(this.lastname, this.firstname, this.deck, this.comment)
       .subscribe(
         (res) => {
-          this.snackBar.open('Player added', null, { duration: 300 })
+          this.snackBar.open('Player added', null, { duration: 3000 })
           this.refreshService.notify()
           this.dialogRef.close()
         },
         (err) =>
           this.snackBar.open('Impossible to add player', null, {
-            duration: 300,
+            duration: 3000,
           })
       )
   }
@@ -64,7 +64,7 @@ export class PlayerComponent {
       .subscribe(
         (res) => {
           this.isLoading = false
-          this.snackBar.open('Player edited', null, { duration: 300 })
+          this.snackBar.open('Player edited', null, { duration: 3000 })
           this.refreshService.notify()
           this.isEditing = false
           this.currentPlayer = res
@@ -72,7 +72,7 @@ export class PlayerComponent {
         (err) => {
           this.isLoading = false
           this.snackBar.open('Impossible to edit player', null, {
-            duration: 300,
+            duration: 3000,
           })
         }
       )
@@ -89,7 +89,9 @@ export class PlayerComponent {
       },
       (err) => {
         this.isCommentLoading = false
-        this.snackBar.open('Impossible to add comment', null, { duration: 300 })
+        this.snackBar.open('Impossible to add comment', null, {
+          duration: 3000,
+        })
       }
     )
   }

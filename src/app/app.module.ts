@@ -9,6 +9,7 @@ import {
   MatListModule,
   MatProgressBarModule,
   MatSidenavModule,
+  MatSnackBar,
   MatSnackBarModule,
   MatTableModule,
   MatToolbarModule,
@@ -82,9 +83,9 @@ export function tokenGetter() {
     {
       provide: HTTP_INTERCEPTORS,
       multi: true,
-      useFactory: (userService: UserService) =>
-        new AuthenticationInterceptor(userService),
-      deps: [UserService],
+      useFactory: (userService: UserService, snackBar: MatSnackBar) =>
+        new AuthenticationInterceptor(userService, snackBar),
+      deps: [UserService, MatSnackBar],
     },
     { provide: JWT_LOCALSTORAGE_KEY, useValue: JWT_LOCALSTORAGE_KEY_VALUE },
     { provide: MOBILE_MEDIA_QUERY, useValue: '(max-width: 720px)' },

@@ -3,6 +3,7 @@
     <span *ngIf="currentPlayer">{{currentPlayer.lastname}}, {{currentPlayer.firstname}}</span>
     <span *ngIf="!currentPlayer">Add a new player</span>
   </h2>
+  <div class="space"></div>
   <ng-container *ngTemplateOutlet="action"></ng-container>
 </div>
 

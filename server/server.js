@@ -47,7 +47,6 @@ async function start() {
         .collection('users')
         .findOne({ 'facebookProvider.id': profile.id })
       try {
-        console.log('user', profile)
         if (!user) {
           user = await db.collection('users').insertOne({
             displayName:
@@ -79,7 +78,7 @@ async function start() {
           displayName: req.user.displayName,
         },
         secret,
-        { expiresIn: 60 * 120 }
+        { expiresIn: 60 * 60 * 24 * 5 }
       )
       res.setHeader('x-auth-token', token)
       res.json({ user: { displayName: req.user.displayName } })
