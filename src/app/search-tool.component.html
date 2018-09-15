@@ -24,10 +24,11 @@
       <td>{{player.lastname}}</td>
       <td>{{player.firstname}}</td>
       <td>{{player.deck || '?'}}</td>
-      <td *ngIf="!viewAll">
+      <td *ngIf="!viewAll" class="action">
         <button mat-icon-button (click)="openPlayer(player)">
           <mat-icon aria-label="view" color="accent">remove_red_eye</mat-icon>
         </button>
+        <span class="have-comments" *ngIf="player.comments && player.comments.length">!</span>
       </td>
     </tr>
   </tbody>

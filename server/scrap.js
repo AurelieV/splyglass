@@ -16,7 +16,7 @@ const options = {
   },
 }
 
-const playerRegexp = /^(.+), (.+) \((\d)+\)$/
+const playerRegexp = /^(.+), (.+) \((\d+)\)$/
 
 async function start() {
   try {
@@ -30,13 +30,15 @@ async function start() {
           console.log('Parse error', $(this).text())
           return
         }
-        const [, lastname, firstname] = info
+        const [, lastname, firstname, score] = info
         const playerId = $(this).attr('value')
 
         players.push({
           lastname,
           firstname,
           playerId,
+          active: true,
+          score: Number(score),
           logs: [
             {
               user: 'Auto',
@@ -49,8 +51,6 @@ async function start() {
       })
 
     console.log(`${players.length} scrapped`)
-
-    console.log(players[0])
 
     const client = await MongoClient.connect(url)
     const db = client.db('test')
@@ -65,9 +65,13 @@ async function start() {
       )
     )
     const newPlayers = results.filter(
+      (result) => !result.lastErrorObject.updatedExisting
+    )
+    const updatedPlayer = results.filter(
       (result) => result.lastErrorObject.updatedExisting
     )
     console.log(`${newPlayers.length} new players inserted`)
+    console.log(`${updatedPlayer.length} players updated`)
 
     client.close()
   } catch (err) {

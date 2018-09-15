@@ -26,3 +26,14 @@ table.players {
     vertical-align: middle;
   }
 }
+
+.action {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .have-comments {
+    color: red;
+    font-weight: bold;
+    font-size: 20px;
+  }
+}

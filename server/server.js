@@ -92,9 +92,14 @@ async function start() {
     let findQuery = {}
     if (searchText) {
       findQuery = {
-        $or: [
-          { lastname: { $regex: searchText, $options: 'xi' } },
-          { firstname: { $regex: searchText, $options: 'xi' } },
+        $and: [
+          { active: true },
+          {
+            $or: [
+              { lastname: { $regex: searchText, $options: 'xi' } },
+              { firstname: { $regex: searchText, $options: 'xi' } },
+            ],
+          },
         ],
       }
     }
@@ -116,22 +121,22 @@ async function start() {
   app.get('/stats', async function(req, res) {
     const collection = db.collection('players')
     try {
-      const stats = await collection
+      const facets = await collection
         .aggregate([
           {
-            $project: { withoutDeck: { $not: '$deck' } },
+            $match: { active: true },
           },
+          { $project: { haveDeck: { $not: '$deck' } } },
           {
-            $group: {
-              _id: { withoutDeck: '$withoutDeck' },
-              count: { $sum: 1 },
+            $facet: {
+              decks: [{ $sortByCount: '$haveDeck' }],
             },
           },
         ])
         .toArray()
-      const withDeck = (stats.find((s) => !s._id.withoutDeck) || {}).count || 0
-      const withoutDeck =
-        (stats.find((s) => s._id.withoutDeck) || {}).count || 0
+      const stats = facets[0].decks
+      const withDeck = (stats.find((s) => !s._id) || {}).count || 0
+      const withoutDeck = (stats.find((s) => s._id) || {}).count || 0
       res.json({
         total: withDeck + withoutDeck,
         withDeck,
@@ -237,19 +242,3 @@ async function start() {
 }
 
 start()
-
-// async function read() {
-//   try {
-//     const client = await MongoClient.connect(url);
-//     const db = client.db('test');
-//     const collection = db.collection('players');
-//     const test = await collection.find({}).toArray();
-//     console.log(test);
-
-//     client.close();
-//   } catch (e) {
-//     console.log(e)
-//   }
-// }
-
-// read();
