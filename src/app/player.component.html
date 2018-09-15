@@ -45,28 +45,14 @@
         <span class="metadata"> - ({{comment.user}} - {{comment.time | date:'medium'}})</span>
       </div>
     </div>
-    <ng-template [ngIf]="user">
-      <div class="field">
-        <label class="label">Add a comment</label>
-        <div class="control">
-          <textarea row="3" class="textarea" placeholder="Comment" name="comment" [(ngModel)]="comment"></textarea>
-        </div>
-      </div>
-      <div class="control">
-        <button class="button is-success" [class.is-loading]="isCommentLoading" (click)="addComment()">Comment</button>
-      </div>
-    </ng-template>
-  </div>
-  <div class="actions">
+    <div class="actions">
       <button mat-flat-button color="primary" *ngIf="currentPlayer && !isCommenting" (click)="isCommenting = true">Comment</button>
+    </div>
   </div>
   <div *ngIf="isCommenting">
     <mat-form-field>
       <textarea col="3" matInput placeholder="Comment" [(ngModel)]="comment"></textarea>
     </mat-form-field>
-    <div class="actions">
-      <button mat-flat-button [disabled]="!comment || isCommentLoading" (click)="addComment()">Add comment</button>
-    </div>
   </div>
   <div class="list" *ngIf="currentPlayer && !isEditing && !isCommenting">
     <div class="title">History</div>
@@ -89,4 +75,6 @@
     [disabled]="isLoading">Cancel</button>
   <button mat-flat-button color="primary" *ngIf="currentPlayer && isEditing" [disabled]="!(firstname && lastname && deck) || isLoading"
     (click)="edit()">Edit</button>
+  <button mat-flat-button *ngIf="isCommenting" [disabled]="!comment || isCommentLoading" (click)="addComment()">Add
+    comment</button>
 </mat-dialog-actions>
