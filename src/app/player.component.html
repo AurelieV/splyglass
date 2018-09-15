@@ -1,7 +1,11 @@
-<h2 mat-dialog-title>
-  <span *ngIf="currentPlayer">{{currentPlayer.lastname}}, {{currentPlayer.firstname}}</span>
-  <span *ngIf="!currentPlayer">Add a new player</span>
-</h2>
+<div mat-dialog-title>
+  <h2 *ngIf="!isEditing && !isCommenting">
+    <span *ngIf="currentPlayer">{{currentPlayer.lastname}}, {{currentPlayer.firstname}}</span>
+    <span *ngIf="!currentPlayer">Add a new player</span>
+  </h2>
+  <ng-container *ngTemplateOutlet="action"></ng-container>
+</div>
+
 <mat-dialog-content *ngIf="!currentPlayer">
   <form #addForm="ngForm">
     <mat-form-field>
@@ -25,13 +29,13 @@
   </div>
   <form *ngIf="isEditing">
     <mat-form-field>
+      <input [disabled]="isLoading" matInput placeholder="Deck" [(ngModel)]="deck" name="deck" required>
+    </mat-form-field>
+    <mat-form-field>
       <input [disabled]="isLoading" matInput placeholder="Lastname" [(ngModel)]="lastname" name="lastname" required>
     </mat-form-field>
     <mat-form-field>
       <input [disabled]="isLoading" matInput placeholder="Firstname" [(ngModel)]="firstname" name="firstname" required>
-    </mat-form-field>
-    <mat-form-field>
-      <input [disabled]="isLoading" matInput placeholder="Deck" [(ngModel)]="deck" name="deck" required>
     </mat-form-field>
   </form>
   <div class="list" *ngIf="!isEditing && !isCommenting">
@@ -68,13 +72,15 @@
 
 <mat-dialog-actions>
   <button mat-stroked-button color="accent" (click)="close()" *ngIf="!currentPlayer || (!isEditing && !isCommenting)">Close</button>
+  <button mat-stroked-button color="accent" *ngIf="currentPlayer && (isEditing || isCommenting)" (click)="isEditing = false; isCommenting = false"
+    [disabled]="isLoading">Cancel</button>
+</mat-dialog-actions>
+
+<ng-template #action>
   <button *ngIf="currentPlayer && !isEditing && !isCommenting" (click)="isEditing = true" mat-flat-button color="primary">Edit</button>
   <button mat-flat-button color="primary" (click)="add()" *ngIf="!currentPlayer" [disabled]="!(lastname && firstname && deck)">Add
     {{addForm && addForm.form.invalid}}</button>
-  <button mat-stroked-button color="accent" *ngIf="currentPlayer && (isEditing || isCommenting)" (click)="isEditing = false; isCommenting = false"
-    [disabled]="isLoading">Cancel</button>
   <button mat-flat-button color="primary" *ngIf="currentPlayer && isEditing" [disabled]="!(firstname && lastname && deck) || isLoading"
-    (click)="edit()">Edit</button>
-  <button mat-flat-button *ngIf="isCommenting" [disabled]="!comment || isCommentLoading" (click)="addComment()">Add
-    comment</button>
-</mat-dialog-actions>
+    (click)="edit()">Validate</button>
+  <button mat-flat-button *ngIf="isCommenting" [disabled]="!comment || isCommentLoading" (click)="addComment()">Comment</button>
+</ng-template>

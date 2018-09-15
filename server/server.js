@@ -47,9 +47,16 @@ async function start() {
         .collection('users')
         .findOne({ 'facebookProvider.id': profile.id })
       try {
+        console.log('user', profile)
         if (!user) {
           user = await db.collection('users').insertOne({
-            displayName: profile.displayName,
+            displayName:
+              profile.displayName ||
+              (profile.name &&
+                `${profile.name.givenName} ${$profil.name.middleName} ${
+                  profil.name.familyName
+                }`) ||
+              'Inconnu',
             facebookProvider: { id: profile.id, token: accessToken },
           })
         }
