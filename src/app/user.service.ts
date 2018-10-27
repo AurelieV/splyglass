@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http'
 import { Inject, Injectable } from '@angular/core'
-import jwtDecode from 'jwt-decode'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, ConnectableObservable, Observable } from 'rxjs'
+import { map, publishLast, switchMap } from 'rxjs/operators'
 import { environment } from './../environments/environment'
 import { JWT_LOCALSTORAGE_KEY } from './configuration'
 
 export interface User {
   id: string
   displayName: string
+  playerId: string
 }
 
 @Injectable()
@@ -45,7 +46,16 @@ export class UserService {
       js.src = 'https://connect.facebook.net/en_US/sdk.js'
       fjs.parentNode.insertBefore(js, fjs)
     }
-    this.updateUser()
+  }
+
+  init() {
+    const token = localStorage.getItem(this.jwtLocalStorageKey)
+    if (!token) {
+      this.user = null
+      return
+    } else {
+      this._fetchUser()
+    }
   }
 
   login() {
@@ -61,7 +71,7 @@ export class UserService {
             const token = res.headers.get('x-auth-token')
             if (token) {
               localStorage.setItem(this.jwtLocalStorageKey, token)
-              this.user = jwtDecode(token)
+              this._fetchUser()
             }
           })
       },
@@ -74,12 +84,24 @@ export class UserService {
     this.user = null
   }
 
-  private updateUser() {
-    const token = localStorage.getItem(this.jwtLocalStorageKey)
-    if (!token) {
-      this.user = null
-      return
-    }
-    this.user = jwtDecode(token)
+  setPlayerId(playerId: string): Observable<User> {
+    return this.http
+      .post('/api/me/playerId', { playerId })
+      .pipe(switchMap(() => this._fetchUser()))
+  }
+
+  private _fetchUser(): Observable<User> {
+    const call = this.http.get('/api/me').pipe(
+      map((res: any) => res.data),
+      publishLast()
+    ) as ConnectableObservable<User>
+
+    call.subscribe((user) => {
+      this.user = user
+    })
+
+    call.connect()
+
+    return call
   }
 }

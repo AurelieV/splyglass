@@ -7,7 +7,7 @@ const url = `mongodb+srv://${configuration.user}:${configuration.password}@${
   configuration.url
 }`
 
-const eventId = 104
+const eventId = 108
 const options = {
   uri: `http://pairings.channelfireball.com/personal/${eventId}`,
   useNewUrlParser: true,

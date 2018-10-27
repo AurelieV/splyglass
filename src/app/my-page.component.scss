@@ -1,0 +1,40 @@
+table.players {
+  table-layout: fixed;
+  margin-top: 1rem;
+  word-wrap: break-word;
+  word-break: break-all;
+  font-size: 12px;
+  td {
+    vertical-align: middle;
+    word-break: break-word;
+  }
+  .round {
+    width: 10px;
+  }
+}
+
+.action {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .have-comments {
+    color: red;
+    font-weight: bold;
+    font-size: 20px;
+  }
+}
+
+.actions {
+  align-self: stretch;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.define-id {
+  margin-top: 2em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}

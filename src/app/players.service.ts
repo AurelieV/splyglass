@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http'
-import { Injectable } from '@angular/core'
-import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 export interface Player {
   firstname: string
@@ -9,6 +9,13 @@ export interface Player {
   deck: string
   playerId?: string
   _id?: any
+}
+
+export interface Match {
+  opponent: Player
+  round: number
+  score: string
+  _id: any
 }
 
 export interface Stats {
@@ -27,6 +34,16 @@ export class PlayersService {
 
   getAll() {
     return this.http.get('/api/players').pipe(map((res: any) => res.data))
+  }
+
+  getMatches(): Observable<Match[]> {
+    return this.http.get('/api/me/matches').pipe(map((res: any) => res.data))
+  }
+
+  synchronizeMatches(playerId: string): Observable<Match[]> {
+    return this.http
+      .post('/api/me/synchronize-matches', {playerId})
+      .pipe(map((res: any) => res.data))
   }
 
   search(search: string, viewAll: boolean = false): Observable<Player[]> {

@@ -4,7 +4,7 @@ const url = `mongodb+srv://${configuration.user}:${configuration.password}@${
   configuration.url
 }`
 
-const minScore = 15
+const minScore = 18
 
 async function start() {
   try {

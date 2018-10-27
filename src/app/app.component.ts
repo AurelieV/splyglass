@@ -40,6 +40,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.userService.init()
     this.userService.user$.subscribe((user) => {
       this.user = user
       // force to do this, because facebook login is not detected

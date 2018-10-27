@@ -3,6 +3,10 @@ const bodyParser = require('body-parser')
 const MongoClient = require('mongodb').MongoClient
 const ObjectId = require('mongodb').ObjectId
 const passport = require('passport')
+const rp = require('request-promise')
+const cheerio = require('cheerio')
+const eventId = 108
+
 const FacebookTokenStrategy = require('passport-facebook-token')
 const {
   facebook: facebookData,
@@ -76,6 +80,7 @@ async function start() {
         {
           id: req.user._id,
           displayName: req.user.displayName,
+          playerId: req.user.playerId,
         },
         secret,
         { expiresIn: 60 * 60 * 24 * 5 }
@@ -102,6 +107,8 @@ async function start() {
           },
         ],
       }
+    } else {
+      findQuery = { active: true }
     }
     try {
       let query = collection.find(findQuery).sort([['lastname', 1]])
@@ -115,6 +122,141 @@ async function start() {
       })
     } catch (err) {
       res.status(500).json({ err })
+    }
+  })
+
+  app.get('/me', async function(req, res) {
+    const user = req.user
+    if (!user) {
+      return res.status(403).send('Unauthorized')
+    }
+    const dbUser = await db
+      .collection('users')
+      .findOne({ _id: ObjectId(user.id) })
+    return res.json({ data: dbUser })
+  })
+
+  app.post('/me/playerId', async function(req, res) {
+    const user = req.user
+    if (!user) {
+      return res.status(403).send('Unauthorized')
+    }
+    const playerId = req.body.playerId
+    const dbUser = await db
+      .collection('users')
+      .findOneAndUpdate(
+        { _id: ObjectId(user.id) },
+        { $set: { playerId } },
+        { returnOriginal: false }
+      )
+    res.json({ data: dbUser })
+  })
+
+  app.get('/me/matches', async function(req, res) {
+    const user = req.user
+    if (!user) {
+      return res.status(403).send('Unauthorized')
+    }
+    try {
+      const dbOpponents = await db
+        .collection('users')
+        .aggregate([
+          { $match: { _id: ObjectId(user.id) } },
+          {
+            $unwind: '$opponents',
+          },
+          {
+            $lookup: {
+              from: 'players',
+              localField: 'opponents',
+              foreignField: '_id',
+              as: 'players_opponents',
+            },
+          },
+          { $unwind: '$players_opponents' },
+          {
+            $group: {
+              _id: '_id',
+              opponents: { $push: '$players_opponents' },
+            },
+          },
+        ])
+        .toArray()
+      res.json({ data: dbOpponents[0].opponents.map((p) => ({ player: p })) })
+    } catch (e) {
+      console.log('error', e)
+      return res.status(500).send('Unable to fetch')
+    }
+  })
+
+  app.post('/me/synchronize-matches', async function(req, res) {
+    const user = req.user
+    if (!user) {
+      return res.status(403).send('Unauthorized')
+    }
+    const playerId = req.body.playerId
+    if (!playerId) {
+      return res.json({ data: [] })
+    }
+    const options = {
+      uri: `http://pairings.channelfireball.com/personal/${eventId}/${playerId}`,
+      useNewUrlParser: true,
+      transform: function(body) {
+        return cheerio.load(body)
+      },
+    }
+    try {
+      const $ = await rp(options)
+      const promises = []
+      $('.personal-row3')
+        .children('.info-block')
+        .each(function() {
+          const player = $(this)
+            .children('.data')
+            .children('a')
+            .text()
+          const [lastname, firstname] = player.split(', ')
+          promises.push(
+            db.collection('players').findOne({ firstname, lastname })
+          )
+        })
+      const dbPlayers = await Promise.all(promises)
+      const opponents = dbPlayers.filter((p) => Boolean(p)).map((p) => p._id)
+      const dbUser = await db
+        .collection('users')
+        .findOneAndUpdate(
+          { _id: ObjectId(user.id) },
+          { $set: { opponents: opponents } },
+          { returnOriginal: false }
+        )
+      const dbOpponents = await db
+        .collection('users')
+        .aggregate([
+          { $match: { _id: ObjectId(user.id) } },
+          {
+            $unwind: '$opponents',
+          },
+          {
+            $lookup: {
+              from: 'players',
+              localField: 'opponents',
+              foreignField: '_id',
+              as: 'players_opponents',
+            },
+          },
+          { $unwind: '$players_opponents' },
+          {
+            $group: {
+              _id: '_id',
+              opponents: { $push: '$players_opponents' },
+            },
+          },
+        ])
+        .toArray()
+      res.json({ data: dbOpponents[0].opponents.map((p) => ({ player: p })) })
+    } catch (e) {
+      console.log('error', e)
+      return res.status(500).send('Unable to fetch')
     }
   })
 

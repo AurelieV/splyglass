@@ -1,0 +1,51 @@
+<ng-container *ngIf="(playerId$ | async) && !isEditingPlayerId; else setPlayerId">
+  <div class="actions">
+    <button mat-flat-button color="primary" (click)="synchronizeMatches()" [disabled]="isLoading">Synchronize from
+      pairings</button>
+  </div>
+  <table class="table is-striped is-fullwidth is-narrow players">
+    <thead>
+      <th class="round">#</th>
+      <th>Name</th>
+      <th>Score</th>
+      <th>Deck</th>
+      <th *ngIf="!viewAll">Actions</th>
+    </thead>
+    <tbody>
+      <tr *ngFor="let match of matches; trackBy: trackByFn">
+        <td class="round">{{match.round}}</td>
+        <td>{{match.player.lastname}}, {{match.player.firstname}}</td>
+        <td>{{match.score}}</td>
+        <td>{{match.player.deck || '?'}}</td>
+        <td class="action">
+          <button mat-icon-button (click)="openPlayer(match.player)">
+            <mat-icon aria-label="view" color="accent">remove_red_eye</mat-icon>
+          </button>
+          <span class="have-comments" *ngIf="match.player.comments && match.player.comments.length">!</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="actions">
+    <button mat-flat-button color="primary" [disabled]="isLoading" (click)="isEditingPlayerId = true">Change my ID</button>
+  </div>
+</ng-container>
+
+<ng-template #setPlayerId>
+  For GP, I can fetch your opponents from online pairings. You need to give me your id.
+  <br>
+  Go to <a href="http://pairings.channelfireball.com/">Online pairings</a>, click on Personnal, and search your name.
+  <br>
+  Click on your name, and copy the number at the end of the url
+
+  <div class="define-id">
+    <mat-form-field class="id-input">
+      <input matInput type="text" placeholder="My id" [(ngModel)]="id">
+    </mat-form-field>
+    <div class="actions">
+      <button mat-stroked-button color="warn" *ngIf="!isLoading && isEditingPlayerId" (click)="isEditingPlayerId = false">Cancel</button>
+      <button mat-flat-button color="primary" [disabled]="!id || isLoading" (click)="setId(id)">Set my id</button>
+    </div>
+  </div>
+
+</ng-template>

@@ -24,6 +24,7 @@ import { AuthenticationInterceptor } from './authentication.interceptor'
 import { CommingSoonComponent } from './comming-soon.component'
 import { JWT_LOCALSTORAGE_KEY, MOBILE_MEDIA_QUERY } from './configuration'
 import { FullComponent } from './full.component'
+import { MyPageComponent } from './my-page.component'
 import { PlayerComponent } from './player.component'
 import { PlayersService } from './players.service'
 import { RefreshService } from './refresh.service'
@@ -44,6 +45,7 @@ export function tokenGetter() {
     PlayerComponent,
     FullComponent,
     StatsComponent,
+    MyPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -64,7 +66,7 @@ export function tokenGetter() {
       { path: '', component: SearchToolComponent },
       { path: 'full', component: FullComponent },
       { path: 'stats', component: StatsComponent },
-      { path: 'my-page', component: CommingSoonComponent },
+      { path: 'my-page', component: MyPageComponent },
     ]),
 
     // Material
