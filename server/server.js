@@ -5,17 +5,11 @@ const ObjectId = require('mongodb').ObjectId
 const passport = require('passport')
 const rp = require('request-promise')
 const cheerio = require('cheerio')
-const eventId = 108
+const eventId = 114
 
 const FacebookTokenStrategy = require('passport-facebook-token')
-const {
-  facebook: facebookData,
-  database: configuration,
-  secret,
-} = require('./private')
-const url = `mongodb+srv://${configuration.user}:${configuration.password}@${
-  configuration.url
-}`
+const { facebook: facebookData, database: configuration, secret } = require('./private')
+const url = `mongodb+srv://${configuration.user}:${configuration.password}@${configuration.url}`
 const jwt = require('jsonwebtoken')
 const expressJwt = require('express-jwt')
 
@@ -47,18 +41,14 @@ async function start() {
       profile,
       done
     ) {
-      let user = await db
-        .collection('users')
-        .findOne({ 'facebookProvider.id': profile.id })
+      let user = await db.collection('users').findOne({ 'facebookProvider.id': profile.id })
       try {
         if (!user) {
           user = await db.collection('users').insertOne({
             displayName:
               profile.displayName ||
               (profile.name &&
-                `${profile.name.givenName} ${$profil.name.middleName} ${
-                  profil.name.familyName
-                }`) ||
+                `${profile.name.givenName} ${$profil.name.middleName} ${profil.name.familyName}`) ||
               'Inconnu',
             facebookProvider: { id: profile.id, token: accessToken },
           })
@@ -130,9 +120,7 @@ async function start() {
     if (!user) {
       return res.status(403).send('Unauthorized')
     }
-    const dbUser = await db
-      .collection('users')
-      .findOne({ _id: ObjectId(user.id) })
+    const dbUser = await db.collection('users').findOne({ _id: ObjectId(user.id) })
     return res.json({ data: dbUser })
   })
 
@@ -216,9 +204,7 @@ async function start() {
             .children('a')
             .text()
           const [lastname, firstname] = player.split(', ')
-          promises.push(
-            db.collection('players').findOne({ firstname, lastname })
-          )
+          promises.push(db.collection('players').findOne({ firstname, lastname }))
         })
       const dbPlayers = await Promise.all(promises)
       const opponents = dbPlayers.filter((p) => Boolean(p)).map((p) => p._id)
@@ -405,6 +391,7 @@ async function start() {
         firstname,
         lastname,
         deck,
+        active: true,
         logs: [
           {
             user: user.displayName,
